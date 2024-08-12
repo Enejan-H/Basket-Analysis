@@ -1,7 +1,9 @@
 import streamlit as st
 import pandas as pd
 import pickle
-import os  # Import os module for handling file paths
+import os
+import networkx as nx
+import matplotlib.pyplot as plt
 
 # Function to load data
 def load_data(file_path):
@@ -26,6 +28,27 @@ def get_recommendations(input_products, rules, data, key_column, description_col
 
     return recommended_products
 
+def plot_network_graph(rules):
+    G = nx.DiGraph()
+    
+    # Add edges to the graph for all rules
+    for _, row in rules.iterrows():
+        for antecedent in row['antecedents']:
+            for consequent in row['consequents']:
+                G.add_edge(antecedent, consequent, weight=row['lift'])
+    
+    pos = nx.spring_layout(G, seed=42)
+    
+    plt.figure(figsize=(12, 12))
+    nx.draw(G, pos, with_labels=True, node_size=3000, node_color='skyblue', font_size=10, font_weight='bold', edge_color='gray')
+    
+    edge_labels = nx.get_edge_attributes(G, 'weight')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
+    
+    plt.title('Network Graph of Association Rules')
+    st.pyplot(plt)
+
+
 # Streamlit UI
 st.title("Product Recommendation Based On Basket-Analysis")
 
@@ -34,15 +57,10 @@ page = st.sidebar.selectbox("Select Page", ["eBay", "Walmart", "Order Report"])
 
 if page == "eBay":
 
-    # Display the image
     st.image(os.path.join('images', 'ebay.png'), caption='', use_column_width=True)
-
     
-    # Load models and data
     ebay_apriori_model = load_model(os.path.join('models','product_recommendation_model_ebay_apriori.pkl'))
-    
     ebay_fpgrowth_model = load_model(os.path.join('models', 'product_recommendation_model_ebay_fp-growth.pkl'))
-    
     ebay_data = load_data(os.path.join('data', 'eBay _Order_final.csv'))
 
     method = st.radio("Choose method", ("Apriori", "FP-Growth"))
@@ -67,16 +85,16 @@ if page == "eBay":
         else:
             st.write("No recommendations found based on the entered products.")
 
-elif page == "Walmart":
-    
-    # Display the image
-    st.image(os.path.join('images', 'walmart.jpg'), caption='', use_column_width=True)
+        # Plot the network graph
+        st.write("Network Graph of Top Association Rules:")
+        plot_network_graph(rules)
 
-    # Load models and data
+elif page == "Walmart":
+
+    st.image(os.path.join('images', 'walmart.jpg'), caption='', use_column_width=True)
+    
     walmart_apriori_model = load_model(os.path.join('models', 'product_recommendation_model_walmart_aprior.pkl'))
-                                       
     walmart_fpgrowth_model = load_model(os.path.join('models', 'product_recommendation_model_walmart_fp-growth.pkl'))
-                                        
     walmart_data = load_data(os.path.join('data', 'Walmart_Final_merged.csv'))
 
     method = st.radio("Choose method", ("Apriori", "FP-Growth"))
@@ -101,12 +119,14 @@ elif page == "Walmart":
         else:
             st.write("No recommendations found based on the entered products.")
 
+        # Plot the network graph
+        st.write("Network Graph of Top Association Rules:")
+        plot_network_graph(rules)
+
 elif page == "Order Report":
-   
- # Display the image
+
     st.image(os.path.join('images', 'emsbay.jpg'), caption='', use_column_width=True)
 
-    # Load models and data
     order_report_apriori_model = load_model(os.path.join('models', 'product_recommendation_model_order_apriori.pkl'))
     order_report_fpgrowth_model = load_model(os.path.join('models', 'product_recommendation_model_order_fp-growth.pkl'))
     order_report_data = load_data(os.path.join('data', 'order_report_final.csv'))
@@ -132,3 +152,7 @@ elif page == "Order Report":
             st.dataframe(recommended_products)
         else:
             st.write("No recommendations found based on the entered products.")
+
+        # Plot the network graph
+        st.write("Network Graph of Top Association Rules:")
+        plot_network_graph(rules)
