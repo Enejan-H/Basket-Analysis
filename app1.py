@@ -39,9 +39,11 @@ if page == "eBay":
 
     
     # Load models and data
-    ebay_apriori_model = load_model('/Users/enejanhayytjanova/Desktop/My Githup/Basket-Analysis/models/product_recommendation_model_ebay_apriori.pkl')
-    ebay_fpgrowth_model = load_model('/Users/enejanhayytjanova/Desktop/My Githup/Basket-Analysis/models/product_recommendation_model_ebay_fp-growth.pkl')
-    ebay_data = load_data('/Users/enejanhayytjanova/Desktop/My Githup/Basket-Analysis/data/eBay _Order_final.csv')
+    ebay_apriori_model = load_model(os.path.join('models','product_recommendation_model_ebay_apriori.pkl'))
+    
+    ebay_fpgrowth_model = load_model(os.path.join('models', 'product_recommendation_model_ebay_fp-growth.pkl'))
+    
+    ebay_data = load_data(os.path.join('data', 'eBay _Order_final.csv'))
 
     method = st.radio("Choose method", ("Apriori", "FP-Growth"))
     rules = ebay_apriori_model if method == "Apriori" else ebay_fpgrowth_model
@@ -71,9 +73,11 @@ elif page == "Walmart":
     st.image(os.path.join('images', 'walmart.jpg'), caption='', use_column_width=True)
 
     # Load models and data
-    walmart_apriori_model = load_model('/Users/enejanhayytjanova/Desktop/My Githup/Basket-Analysis/models/product_recommendation_model_walmart_aprior.pkl')
-    walmart_fpgrowth_model = load_model('/Users/enejanhayytjanova/Desktop/My Githup/Basket-Analysis/models/product_recommendation_model_walmart_fp-growth.pkl')
-    walmart_data = load_data('/Users/enejanhayytjanova/Desktop/My Githup/Basket-Analysis/data/Walmart_Final_merged.csv')
+    walmart_apriori_model = load_model(os.path.join('models', 'product_recommendation_model_walmart_aprior.pkl'))
+                                       
+    walmart_fpgrowth_model = load_model(os.path.join('models', 'product_recommendation_model_walmart_fp-growth.pkl'))
+                                        
+    walmart_data = load_data(os.path.join('data', 'Walmart_Final_merged.csv'))
 
     method = st.radio("Choose method", ("Apriori", "FP-Growth"))
     rules = walmart_apriori_model if method == "Apriori" else walmart_fpgrowth_model
@@ -103,9 +107,9 @@ elif page == "Order Report":
     st.image(os.path.join('images', 'emsbay.jpg'), caption='', use_column_width=True)
 
     # Load models and data
-    order_report_apriori_model = load_model('/Users/enejanhayytjanova/Desktop/My Githup/Basket-Analysis/models/product_recommendation_model_order_apriori.pkl')
-    order_report_fpgrowth_model = load_model('/Users/enejanhayytjanova/Desktop/My Githup/Basket-Analysis/models/product_recommendation_model_order_fp-growth.pkl')
-    order_report_data = load_data('/Users/enejanhayytjanova/Desktop/My Githup/Basket-Analysis/data/order_report_final.csv')
+    order_report_apriori_model = load_model(os.path.join('models', 'product_recommendation_model_order_apriori.pkl'))
+    order_report_fpgrowth_model = load_model(os.path.join('models', 'product_recommendation_model_order_fp-growth.pkl'))
+    order_report_data = load_data(os.path.join('data', 'order_report_final.csv'))
 
     method = st.radio("Choose method", ("Apriori", "FP-Growth"))
     rules = order_report_apriori_model if method == "Apriori" else order_report_fpgrowth_model
