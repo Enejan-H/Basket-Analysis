@@ -66,24 +66,29 @@ if page == "eBay":
     method = st.radio("Choose method", ("Apriori", "FP-Growth"))
     rules = ebay_apriori_model if method == "Apriori" else ebay_fpgrowth_model
 
-    input_products = st.text_input("Enter Item Number (comma-separated)", "")
-    if input_products:
-        input_products_list = [item.strip() for item in input_products.split(',')]
+    # Dropdown for input_products using multiselect
+    input_products_list = st.multiselect(
+        "Select Item Numbers",
+        options=ebay_data['Item Number'].unique(),
+        help="Select one or more Item Numbers for which you want recommendations."
+    )
+    
+    if input_products_list:
         
-        st.write("You entered the following products:")
+        st.write("You selected the following products:")
         input_products_df = ebay_data[ebay_data['Item Number'].isin(input_products_list)].drop_duplicates(subset=['Item Number'])
         if not input_products_df.empty:
             for index, row in input_products_df.iterrows():
                 st.write(f"{row['Item Number']}: {row['Item Title']}")
         else:
-            st.write("No matching products found for the entered Item Number.")
+            st.write("No matching products found for the selected Item Numbers.")
         
         recommended_products = get_recommendations(input_products_list, rules, ebay_data, 'Item Number', 'Item Title')
         st.write("Top 5 Recommended products:")
         if not recommended_products.empty:
             st.dataframe(recommended_products)
         else:
-            st.write("No recommendations found based on the entered products.")
+            st.write("No recommendations found based on the selected products.")
 
         # Plot the network graph
         st.write("Network Graph of Top Association Rules:")
@@ -100,24 +105,29 @@ elif page == "Walmart":
     method = st.radio("Choose method", ("Apriori", "FP-Growth"))
     rules = walmart_apriori_model if method == "Apriori" else walmart_fpgrowth_model
 
-    input_products = st.text_input("Enter product SKUs (comma-separated)", "")
-    if input_products:
-        input_products_list = [item.strip() for item in input_products.split(',')]
+    # Dropdown for input_products using multiselect
+    input_products_list = st.multiselect(
+        "Select SKUs",
+        options=walmart_data['SKU'].unique(),
+        help="Select one or more SKUs for which you want recommendations."
+    )
+    
+    if input_products_list:
         
-        st.write("You entered the following products:")
+        st.write("You selected the following products:")
         input_products_df = walmart_data[walmart_data['SKU'].isin(input_products_list)].drop_duplicates(subset=['SKU'])
         if not input_products_df.empty:
             for index, row in input_products_df.iterrows():
                 st.write(f"{row['SKU']}: {row['Item_Description']}")
         else:
-            st.write("No matching products found for the entered SKUs.")
+            st.write("No matching products found for the selected SKUs.")
         
         recommended_products = get_recommendations(input_products_list, rules, walmart_data, 'SKU', 'Item_Description')
         st.write("Top 5 Recommended products:")
         if not recommended_products.empty:
             st.dataframe(recommended_products)
         else:
-            st.write("No recommendations found based on the entered products.")
+            st.write("No recommendations found based on the selected products.")
 
         # Plot the network graph
         st.write("Network Graph of Top Association Rules:")
@@ -134,24 +144,29 @@ elif page == "Order Report":
     method = st.radio("Choose method", ("Apriori", "FP-Growth"))
     rules = order_report_apriori_model if method == "Apriori" else order_report_fpgrowth_model
 
-    input_products = st.text_input("Enter product ASINs (comma-separated)", "")
-    if input_products:
-        input_products_list = [item.strip() for item in input_products.split(',')]
+    # Dropdown for input_products using multiselect
+    input_products_list = st.multiselect(
+        "Select ASINs",
+        options=order_report_data['asin'].unique(),
+        help="Select one or more ASINs for which you want recommendations."
+    )
+    
+    if input_products_list:
         
-        st.write("You entered the following products:")
+        st.write("You selected the following products:")
         input_products_df = order_report_data[order_report_data['asin'].isin(input_products_list)].drop_duplicates(subset=['asin'])
         if not input_products_df.empty:
             for index, row in input_products_df.iterrows():
                 st.write(f"{row['asin']}: {row['product']}")
         else:
-            st.write("No matching products found for the entered ASINs.")
+            st.write("No matching products found for the selected ASINs.")
         
         recommended_products = get_recommendations(input_products_list, rules, order_report_data, 'asin', 'product')
         st.write("Top 5 Recommended products:")
         if not recommended_products.empty:
             st.dataframe(recommended_products)
         else:
-            st.write("No recommendations found based on the entered products.")
+            st.write("No recommendations found based on the selected products.")
 
         # Plot the network graph
         st.write("Network Graph of Top Association Rules:")
