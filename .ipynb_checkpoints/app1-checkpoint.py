@@ -48,126 +48,45 @@ def plot_network_graph(rules):
     plt.title('Network Graph of Association Rules')
     st.pyplot(plt)
 
-
 # Streamlit UI
-st.title("Product Recommendation Based On Basket-Analysis")
+# Center the title using HTML/CSS
+st.markdown("<h1 style='text-align: center;'>Product Recommendation Based On Basket-Analysis</h1>", unsafe_allow_html=True)
 
-# Page selection
-page = st.sidebar.selectbox("Select Page", ["eBay", "Walmart", "Order Report"])
 
-if page == "eBay":
+# Only one page option: Order Report
+st.image(os.path.join('images', 'emsbay.jpg'), caption='', use_column_width=True)
 
-    st.image(os.path.join('images', 'ebay.png'), caption='', use_column_width=True)
+order_report_apriori_model = load_model(os.path.join('models', 'product_recommendation_model_order_apriori.pkl'))
+order_report_fpgrowth_model = load_model(os.path.join('models', 'product_recommendation_model_order_fp-growth.pkl'))
+order_report_data = load_data(os.path.join('data', 'order_report_final.csv'))
+
+method = st.radio("Choose method", ("Apriori", "FP-Growth"))
+rules = order_report_apriori_model if method == "Apriori" else order_report_fpgrowth_model
+
+# Dropdown for input_products using multiselect
+input_products_list = st.multiselect(
+    "Select ASINs",
+    options=order_report_data['asin'].unique(),
+    help="Select one or more ASINs for which you want recommendations."
+)
+
+if input_products_list:
     
-    ebay_apriori_model = load_model(os.path.join('models','product_recommendation_model_ebay_apriori.pkl'))
-    ebay_fpgrowth_model = load_model(os.path.join('models', 'product_recommendation_model_ebay_fp-growth.pkl'))
-    ebay_data = load_data(os.path.join('data', 'eBay _Order_final.csv'))
-
-    method = st.radio("Choose method", ("Apriori", "FP-Growth"))
-    rules = ebay_apriori_model if method == "Apriori" else ebay_fpgrowth_model
-
-    # Dropdown for input_products using multiselect
-    input_products_list = st.multiselect(
-        "Select Item Numbers",
-        options=ebay_data['Item Number'].unique(),
-        help="Select one or more Item Numbers for which you want recommendations."
-    )
+    st.write("You selected the following products:")
+    input_products_df = order_report_data[order_report_data['asin'].isin(input_products_list)].drop_duplicates(subset=['asin'])
+    if not input_products_df.empty:
+        for index, row in input_products_df.iterrows():
+            st.write(f"{row['asin']}: {row['product']}")
+    else:
+        st.write("No matching products found for the selected ASINs.")
     
-    if input_products_list:
-        
-        st.write("You selected the following products:")
-        input_products_df = ebay_data[ebay_data['Item Number'].isin(input_products_list)].drop_duplicates(subset=['Item Number'])
-        if not input_products_df.empty:
-            for index, row in input_products_df.iterrows():
-                st.write(f"{row['Item Number']}: {row['Item Title']}")
-        else:
-            st.write("No matching products found for the selected Item Numbers.")
-        
-        recommended_products = get_recommendations(input_products_list, rules, ebay_data, 'Item Number', 'Item Title')
-        st.write("Top 5 Recommended products:")
-        if not recommended_products.empty:
-            st.dataframe(recommended_products)
-        else:
-            st.write("No recommendations found based on the selected products.")
+    recommended_products = get_recommendations(input_products_list, rules, order_report_data, 'asin', 'product')
+    st.write("Top 5 Recommended products:")
+    if not recommended_products.empty:
+        st.dataframe(recommended_products)
+    else:
+        st.write("No recommendations found based on the selected products.")
 
-        # Plot the network graph
-        st.write("Network Graph of Top Association Rules:")
-        plot_network_graph(rules)
-
-elif page == "Walmart":
-
-    st.image(os.path.join('images', 'walmart.jpg'), caption='', use_column_width=True)
-    
-    walmart_apriori_model = load_model(os.path.join('models', 'product_recommendation_model_walmart_aprior.pkl'))
-    walmart_fpgrowth_model = load_model(os.path.join('models', 'product_recommendation_model_walmart_fp-growth.pkl'))
-    walmart_data = load_data(os.path.join('data', 'Walmart_Final_merged.csv'))
-
-    method = st.radio("Choose method", ("Apriori", "FP-Growth"))
-    rules = walmart_apriori_model if method == "Apriori" else walmart_fpgrowth_model
-
-    # Dropdown for input_products using multiselect
-    input_products_list = st.multiselect(
-        "Select SKUs",
-        options=walmart_data['SKU'].unique(),
-        help="Select one or more SKUs for which you want recommendations."
-    )
-    
-    if input_products_list:
-        
-        st.write("You selected the following products:")
-        input_products_df = walmart_data[walmart_data['SKU'].isin(input_products_list)].drop_duplicates(subset=['SKU'])
-        if not input_products_df.empty:
-            for index, row in input_products_df.iterrows():
-                st.write(f"{row['SKU']}: {row['Item_Description']}")
-        else:
-            st.write("No matching products found for the selected SKUs.")
-        
-        recommended_products = get_recommendations(input_products_list, rules, walmart_data, 'SKU', 'Item_Description')
-        st.write("Top 5 Recommended products:")
-        if not recommended_products.empty:
-            st.dataframe(recommended_products)
-        else:
-            st.write("No recommendations found based on the selected products.")
-
-        # Plot the network graph
-        st.write("Network Graph of Top Association Rules:")
-        plot_network_graph(rules)
-
-elif page == "Order Report":
-
-    st.image(os.path.join('images', 'emsbay.jpg'), caption='', use_column_width=True)
-
-    order_report_apriori_model = load_model(os.path.join('models', 'product_recommendation_model_order_apriori.pkl'))
-    order_report_fpgrowth_model = load_model(os.path.join('models', 'product_recommendation_model_order_fp-growth.pkl'))
-    order_report_data = load_data(os.path.join('data', 'order_report_final.csv'))
-
-    method = st.radio("Choose method", ("Apriori", "FP-Growth"))
-    rules = order_report_apriori_model if method == "Apriori" else order_report_fpgrowth_model
-
-    # Dropdown for input_products using multiselect
-    input_products_list = st.multiselect(
-        "Select ASINs",
-        options=order_report_data['asin'].unique(),
-        help="Select one or more ASINs for which you want recommendations."
-    )
-    
-    if input_products_list:
-        
-        st.write("You selected the following products:")
-        input_products_df = order_report_data[order_report_data['asin'].isin(input_products_list)].drop_duplicates(subset=['asin'])
-        if not input_products_df.empty:
-            for index, row in input_products_df.iterrows():
-                st.write(f"{row['asin']}: {row['product']}")
-        else:
-            st.write("No matching products found for the selected ASINs.")
-        
-        recommended_products = get_recommendations(input_products_list, rules, order_report_data, 'asin', 'product')
-        st.write("Top 5 Recommended products:")
-        if not recommended_products.empty:
-            st.dataframe(recommended_products)
-        else:
-            st.write("No recommendations found based on the selected products.")
-
-        # Plot the network graph
-        st.write("Network Graph of Top Association Rules:")
-        plot_network_graph(rules)
+    # Plot the network graph
+    st.write("Network Graph of Top Association Rules:")
+    plot_network_graph(rules)
