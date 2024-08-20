@@ -49,8 +49,17 @@ def plot_network_graph(rules):
     st.pyplot(plt)
 
 # Streamlit UI
-# Center the title using HTML/CSS
-st.markdown("<h1 style='text-align: center;'>Product Recommendation Based On Basket-Analysis</h1>", unsafe_allow_html=True)
+# Center the title and split the text into two lines with different font sizes
+st.markdown(
+    """
+    <h1 style='text-align: center; font-size: 56px;'>
+        Product Recommendation
+        <br>
+        <span style='font-size: 36px;'>Based On Basket-Analysis</span>
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
 
 
 # Only one page option: Order Report
